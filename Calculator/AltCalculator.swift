@@ -9,171 +9,72 @@ import SwiftUI
 
 struct AltCalculator: View {
     
-    var numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    enum CalculatorButtons: String {
+        case one = "1"
+        case two = "2"
+        case three = "3"
+        case four = "4"
+        case five = "5"
+        case six = "6"
+        case seven = "7"
+        case eight = "8"
+        case nine = "9"
+        case zero = "0"
+        case plus = "+"
+        case minus = "-"
+        case multiply = "*"
+        case divide = "/"
+        case equal = "="
+        case clear = "AC"
+    }
     
-    @State private var inputToDisplay = ""
-    @State private var inputToCalculate = 0
-    @State private var output = 0
-    @State private var summed = 0
-    @State private var showOutput = false
-    @State private var isSum = false
+enum Operation {
+    case add, subtract, multiply, divide, equal, none
+}
+    
+    let buttons: [[CalculatorButtons]] = [
+        [.one, .two, .three, .plus],
+        [.four, .five, .six, .minus],
+        [.seven, .eight, .nine, .multiply],
+        [.zero, .divide, .clear, .equal]
+    ]
+    
+    @State private var value = "0"
+    @State private var currentOperation = Operation.none
+    
     
     var body: some View {
         ZStack{
             VStack {
-                VStack {
-                    VStack {
-                        Section {
-                            TextField("", text:$inputToDisplay)
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.white)
-                                
-                        }
-                        Section {
-                            Text(showOutput ? "\(output)" : "")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.black)
-                        }
-                        .frame(width: 250, height: 70)
-                        .background(Color.white)
-                        .cornerRadius(10)
-                        .padding(5)
-                    }
-                }
-                .frame(width: 250, height: 70)
-                .padding(5)
-                HStack {
-                    ForEach(1..<4) { number in
-                        Button {
-                            addInput(numbers[number])
-                        } label: {
-                            Text("\(numbers[number])")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.white)
-                        }
-                        .frame(width: 70, height: 70)
-                        .padding(5)
-                    }
-                    
-                    Button {
-                        addUp()
-                    } label: {
-                        Text("+")
-                            .font(.title)
+                Section {
+                        TextField("", text:$value)
+                            .font(.system(size: 36))
                             .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                    }
-                    .frame(width: 70, height: 70)
-                    .padding(5)
-                    
-                    
+                            .foregroundStyle(.black)
+                            .padding()
                 }
+                .frame(width: 300, height: 70)
+                .background(.lightGray)
+                .cornerRadius(10)
+                .padding(10)
                 
-                HStack {
-                    ForEach(4..<7) { number in
-                        Button {
-                            addInput(numbers[number])
-                        } label: {
-                            Text("\(numbers[number])")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.white)
+                Section {
+                    ForEach(buttons, id: \.self) { row in
+                        HStack {
+                            ForEach(row, id: \.self) { item in
+                                Button {
+                                    buttonTapped(button: item)
+                                } label: {
+                                    Text("\(item.rawValue)")
+                                        .font(.system(size: 38))
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(.white)
+                                }
+                                .frame(width: 70, height: 70)
+                                .padding(5)
+                            }
                         }
-                        .frame(width: 70, height: 70)
-                        .padding(5)
                     }
-                    
-                    Button {
-
-                    } label: {
-                        Text("-")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                    }
-                    .frame(width: 70, height: 70)
-                    .padding(5)
-                    
-                    
-                }
-                
-                HStack {
-                    ForEach(7..<10) { number in
-                        Button {
-                            addInput(numbers[number])
-                        } label: {
-                            Text("\(numbers[number])")
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.white)
-                        }
-                        .frame(width: 70, height: 70)
-                        .padding(5)
-                    }
-                    
-                    Button {
-
-                    } label: {
-                        Text("*")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                    }
-                    .frame(width: 70, height: 70)
-                    .padding(5)
-                    
-                    
-                }
-                
-                HStack {
-                    Button {
-                        addInput(0)
-                    } label: {
-                        Text("\(numbers[0])")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                    }
-                    .frame(width: 70, height: 70)
-                    .padding(5)
-                    
-                    Button {
-
-                    } label: {
-                        Text("/")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                    }
-                    .frame(width: 70, height: 70)
-                    .padding(5)
-                    
-                    Button {
-                        clear()
-
-                    } label: {
-                        Text("c")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                    }
-                    .frame(width: 70, height: 70)
-                    .padding(5)
-                    
-                    Button {
-                        equals()
-                    } label: {
-                        Text("=")
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white)
-                    }
-                    .frame(width: 70, height: 70)
-                    .padding(5)
-                    
                 }
             }
             .padding()
@@ -182,33 +83,20 @@ struct AltCalculator: View {
         .background(.lightBlue)
     }
 
-    func clear() {
-        inputToDisplay = ""
-        showOutput = false
-    }
-    
-    func addInput(_ number: Int) {
-        inputToDisplay = ""
-        inputToDisplay += "\(number)"
-        inputToCalculate = Int(inputToDisplay) ?? 0
-    }
-    
-    func addUp() {
-        summed += inputToCalculate
-        isSum = true
-        inputToDisplay = ""
-        print(summed)
-    }
-    
-    func equals() {
-        if isSum {
-            summed += inputToCalculate
-            output = summed
+    func buttonTapped(button: CalculatorButtons) {
+        switch button {
+        case .plus, .minus, .multiply, .divide, .equal:
+            break
+        case .clear:
+            value = "0"
+        default:
+            let number = button.rawValue
+            if value == "0" {
+                value = number
+            } else {
+                value = "\(value)\(number)"
+            }
         }
-        inputToDisplay = ""
-        inputToCalculate = 0
-        summed = 0
-        showOutput = true
     }
     
 }

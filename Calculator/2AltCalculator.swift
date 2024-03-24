@@ -33,6 +33,13 @@ struct _AltCalculator: View {
             }
             
             Button {
+                pressNumber(0)
+            } label: {
+                Text("0")
+            }
+            
+            
+            Button {
                 addUp()
             } label: {
                 Text("+")
@@ -47,15 +54,17 @@ struct _AltCalculator: View {
     }
     
     func pressNumber(_ number: Int) {
-        inputToDisplay += "\(number)"
-        inputToCalculate = Int(inputToDisplay) ?? 0
+        
+        if number == 0 {
+            inputToDisplay = "\(inputToDisplay)0"
+        } else {
+            inputToDisplay = "\(inputToDisplay)\(number)"
+        }
+        
     }
     
     func addUp() {
-        summed += inputToCalculate
-        inputToDisplay = ""
         isSum = true
-        print(summed)
     }
     
     func equals() {
